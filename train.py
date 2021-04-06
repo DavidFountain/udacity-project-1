@@ -5,7 +5,7 @@ import numpy as np
 from sklearn.metrics import mean_squared_error
 import joblib
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import OneHotEncoder
+from sklearn.preprocessing import OneHotEncoder, StandardScaler
 import pandas as pd
 from azureml.core.run import Run
 from azureml.data.dataset_factory import TabularDatasetFactory
@@ -44,6 +44,8 @@ def clean_data(data):
 
 x, y = clean_data(ds)
 
+x = StandardScaler().fit_transform(x)
+
 x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.25, random_state=34)
 
 def main():
@@ -62,6 +64,9 @@ def main():
 
     accuracy = model.score(x_test, y_test)
     run.log("Accuracy", np.float(accuracy))
+    
+    os.makedirs('./outputs', exist_ok=True)
+    joblib.dump(model, './outputs/hd-model.joblib')
 
 if __name__ == '__main__':
     main()
