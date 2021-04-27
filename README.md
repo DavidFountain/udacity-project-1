@@ -13,15 +13,25 @@ The best performing model was the VotingEnsemble model trained using AutoML, wit
 ## Scikit-learn Pipeline
 **Explain the pipeline architecture, including data, hyperparameter tuning, and classification algorithm.**
 
-The Scikit-learn pipeline makes use of the train.py script which is 
+* Azure ML workspace and compute cluster are created.
+* Hyperparameter sampling and stopping policy are specified.
+* Training scripts are uploaded to blob storage.
+* Sklearn environment is created and run config and hyper parameter configs are specified.
+* Run is submitted to Azure ML service.
+  * Data is downloaded from web making use of the Azure _TabularDatasetFactory_ class and cleaned using _clean_data_ function.
+  * The data is split into training (75%) and test (25%) sets.
+  * The hyperparameters for C (inverse regularisation strength) and max_iter (number of iterations) are passed through as arguments to train.py and the Logistic regression classifier is fit using these parameters.
+  * Logs are created for hyperparameter settings and primary metric.
+* Training results are fed back to the compute instance and monitored in Jupyter notebook.
+* The best model is registered to Azure ML service.
 
 **What are the benefits of the parameter sampler you chose?**
 
-I chose to use random parameter sampling, as opposed to other methods such as grid sampling or bayesian sampling. The benefit of random parameter sampling is that, unlike grid sampling, it isn't an exhaustive search. This means that the job will run quicker and therefore is less computationaly expensive. The downfall of this method is that as it isn't an exhaustive search, the final parameter values may not be the best that could be chosen.
+I chose to use random parameter sampling, as opposed to other methods such as grid sampling or bayesian sampling. The benefit of random parameter sampling is that, unlike grid sampling, it isn't an exhaustive search. This means that the job will run quicker and is therefore less computationaly expensive. The downfall of this method is that, as it isn't an exhaustive search, the final parameter values may not be optimal.
 
 **What are the benefits of the early stopping policy you chose?**
 
-For the stopping policy, the BanditPolicy class was used which specifies an early stopping criteria based on a slack criteria and frequency anmd delay of interval evaluation. The benefits of this is that if the performance of   
+For the stopping policy, the BanditPolicy class was used which specifies an early stopping criteria based on a slack criteria and frequency and delay of interval evaluation. The benefit of this is that if the performance of a run dips below the specified value ((best score in run + best score in run * slack factor) < best score overall) then the run is terminated. This shortens the overall time for the job to complete, which saves money as the compute clusters aren't running for as long.
 
 ## AutoML
 
